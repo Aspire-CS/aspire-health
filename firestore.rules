@@ -1,0 +1,200 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasEmail() {
+      return isSignedIn() && request.auth.token.email != null;
+    }
+
+    function safeEmail(email) {
+      return lower(email).replace('.', '_').replace('@', '_');
+    }
+
+    function mySafeEmail() {
+      return hasEmail() ? safeEmail(request.auth.token.email) : '';
+    }
+
+    function myEmailLower() {
+      return hasEmail() ? lower(request.auth.token.email) : '';
+    }
+
+    function hasAdminClaim() {
+      return request.auth.token.admin == true ||
+        request.auth.token.role == 'admin' ||
+        (request.auth.token.roles != null &&
+          request.auth.token.roles is list &&
+          request.auth.token.roles.hasAny(['admin']));
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        hasAdminClaim() ||
+        (hasEmail() &&
+          request.auth.token.email.matches('.*@aspirecounselingservice\\.com$'))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && hasEmail() && (
+        userId == request.auth.token.email ||
+        lower(userId) == myEmailLower() ||
+        safeEmail(userId) == mySafeEmail()
+      );
+    }
+
+    match /Users_Calendar_Events/{userId} {
+      allow read, write: if isAdmin() || isOwner(userId);
+
+      match /events/{eventId} {
+        allow read, write: if isAdmin() || isOwner(userId);
+      }
+    }
+
+    match /Admin_Calendar_Events/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /{anyPath=**}/events/{eventId} {
+      allow get, list: if isAdmin();
+    }
+
+    match /calendar_events/{eventId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin() || (isSignedIn() && request.resource.data.userId == request.auth.uid);
+    }
+
+    match /user_profile/{emailId} {
+      allow read, write: if isAdmin() || (
+        isSignedIn() && (
+          emailId == request.auth.token.email ||
+          lower(emailId) == myEmailLower() ||
+          safeEmail(emailId) == mySafeEmail()
+        )
+      );
+    }
+
+    match /user_profile/{emailId}/attendance/{attendanceId} {
+      allow get, list: if isAdmin() || (
+        isSignedIn() && (
+          emailId == request.auth.token.email ||
+          lower(emailId) == myEmailLower() ||
+          safeEmail(emailId) == mySafeEmail()
+        )
+      );
+
+      allow create: if isSignedIn() &&
+        (emailId == request.auth.token.email ||
+          lower(emailId) == myEmailLower() ||
+          safeEmail(emailId) == mySafeEmail()) &&
+        request.resource.data.uid == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /{anyPath=**}/attendance/{attendanceId} {
+      allow get, list: if isAdmin();
+    }
+
+    // -------- Wellness Tracker
+    match /user_wellness_tracker/{uid} {
+      allow get, list: if request.auth != null && uid == request.auth.uid;
+
+      allow create: if request.auth != null
+        && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+          ['field', 'fieldKey', 'startDate', 'userId', 'email', 'updatedAt']
+        )
+        && request.resource.data.field is string
+        && request.resource.data.field.size() > 0
+        && request.resource.data.startDate is timestamp
+        && request.resource.data.userId == request.auth.uid
+        && (!('email' in request.resource.data)
+          || (request.auth.token.email != null
+            && request.resource.data.email == request.auth.token.email));
+
+      allow update: if request.auth != null
+        && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+          ['field', 'fieldKey', 'startDate', 'userId', 'email', 'updatedAt']
+        )
+        && request.resource.data.field is string
+        && request.resource.data.field.size() > 0
+        && request.resource.data.startDate is timestamp
+        && request.resource.data.userId == request.auth.uid
+        && (!('email' in request.resource.data)
+          || (request.auth.token.email != null
+            && request.resource.data.email == request.auth.token.email));
+
+      allow delete: if request.auth != null && uid == request.auth.uid;
+
+      match /trackers/{trackerId} {
+        allow get, list: if request.auth != null && uid == request.auth.uid;
+
+        allow create: if request.auth != null
+          && uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(
+            ['field', 'fieldKey', 'startDate', 'userId', 'email', 'createdAt', 'updatedAt']
+          )
+          && request.resource.data.field is string
+          && request.resource.data.field.size() > 0
+          && request.resource.data.startDate is timestamp
+          && request.resource.data.userId == request.auth.uid
+          && (!('email' in request.resource.data)
+            || (request.auth.token.email != null
+              && request.resource.data.email == request.auth.token.email));
+
+        allow update: if request.auth != null
+          && uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(
+            ['field', 'fieldKey', 'startDate', 'userId', 'email', 'createdAt', 'updatedAt']
+          )
+          && request.resource.data.field is string
+          && request.resource.data.field.size() > 0
+          && request.resource.data.startDate is timestamp
+          && request.resource.data.userId == request.auth.uid
+          && (!('email' in request.resource.data)
+            || (request.auth.token.email != null
+              && request.resource.data.email == request.auth.token.email));
+
+        allow delete: if request.auth != null && uid == request.auth.uid;
+      }
+    }
+
+    match /users/{userId} {
+      allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow list: if isAdmin();
+    }
+
+    match /Daily_Motivation/{monthDoc}/Days/{dayDoc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /daily_motivation/{dateId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /checkins/{checkinId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read, write: if isAdmin();
+    }
+
+    match /adminLoginAudit/{auditId} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow get, list: if false;
+      allow create, update, delete: if false;
+    }
+  }
+}

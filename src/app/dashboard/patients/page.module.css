@@ -1,0 +1,318 @@
+.title {
+  font-size: 1.8rem;
+  color: #203213;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #4d5f3f;
+  margin-bottom: 14px;
+}
+
+.searchRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.searchInput {
+  width: min(320px, 100%);
+  height: 40px;
+  border: 1px solid #c4d6b6;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #638f38;
+  box-shadow: 0 0 0 3px rgba(99, 143, 56, 0.16);
+}
+
+.state {
+  color: #506344;
+}
+
+.groupList {
+  display: grid;
+  gap: 14px;
+}
+
+.locationCard {
+  border: 1px solid #cddfc0;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.locationHeader {
+  width: 100%;
+  border: 0;
+  background: #eaf3e2;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  cursor: pointer;
+}
+
+.locationName {
+  color: #203213;
+  font-weight: 800;
+  text-align: left;
+}
+
+.locationBody {
+  border-top: 0 solid #d8e4cf;
+  padding: 0 10px;
+  display: grid;
+  gap: 10px;
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 240ms ease-in-out,
+    padding 200ms ease-in-out,
+    border-top-width 200ms ease-in-out;
+}
+
+.groupCard {
+  border: 1px solid #d8e4cf;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.groupHeader {
+  width: 100%;
+  border: 0;
+  background: #f2f8ed;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.groupName {
+  color: #223614;
+  font-weight: 700;
+  text-align: left;
+}
+
+.groupMeta {
+  color: #4c603f;
+  font-size: 0.86rem;
+}
+
+.chevron {
+  color: #2b421b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patientList {
+  border-top: 0 solid #d8e4cf;
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 240ms ease-in-out,
+    border-top-width 200ms ease-in-out;
+}
+
+.patientBlock {
+  border-top: 1px solid #edf3e8;
+}
+
+.patientBlock:first-child {
+  border-top: 0;
+}
+
+.patientRow {
+  padding: 0;
+}
+
+.patientToggle {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 10px 14px;
+  align-items: center;
+}
+
+.patientName {
+  color: #203213;
+  text-align: left;
+}
+
+.patientMrn {
+  color: #345026;
+  font-weight: 700;
+}
+
+.chevronSmall {
+  color: #325124;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chevronIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.patientDropdown {
+  border-top: 1px solid #e5eedc;
+  background: #f9fcf6;
+  padding: 0 14px;
+  display: grid;
+  gap: 10px;
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 240ms ease-in-out,
+    padding 200ms ease-in-out;
+}
+
+.expanded {
+  max-height: 4000px;
+  transition:
+    max-height 280ms ease-in-out,
+    padding 200ms ease-in-out,
+    border-top-width 200ms ease-in-out;
+}
+
+.locationBody.expanded {
+  border-top-width: 1px;
+  padding: 10px;
+}
+
+.patientList.expanded {
+  border-top-width: 1px;
+}
+
+.patientDropdown.expanded {
+  padding: 12px 14px;
+}
+
+.assignedHeader {
+  font-weight: 700;
+  color: #233b15;
+}
+
+.assignedList {
+  margin: 0;
+  padding-left: 18px;
+  color: #304b22;
+  display: grid;
+  gap: 4px;
+}
+
+.assignedRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.removeSurveyButton {
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fce8e8;
+  color: #9f1f1f;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.removeSurveyButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.emptyAssigned {
+  color: #607551;
+  margin: 0;
+}
+
+.assignControls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 10px;
+}
+
+.surveySelect {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #c4d6b6;
+  padding: 0 10px;
+  background: #fff;
+}
+
+.addSurveyButton {
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #638f38;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addSurveyButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .searchRow {
+    justify-content: stretch;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .locationHeader,
+  .groupHeader {
+    grid-template-columns: 1fr auto;
+  }
+
+  .chevron {
+    grid-column: 2;
+  }
+
+  .groupMeta {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .patientToggle {
+    grid-template-columns: 1fr auto;
+  }
+
+  .patientMrn {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .chevronSmall {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .assignControls {
+    grid-template-columns: 1fr;
+  }
+}

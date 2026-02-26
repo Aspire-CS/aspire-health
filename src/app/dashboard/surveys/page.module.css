@@ -1,0 +1,161 @@
+.title {
+  font-size: 1.8rem;
+  color: #203213;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #4d5f3f;
+  margin-bottom: 18px;
+}
+
+.state {
+  color: #506344;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #d8e4cf;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTitle {
+  margin: 0 0 6px;
+  color: #203213;
+  font-size: 1.05rem;
+}
+
+.cardMeta {
+  margin: 0;
+  color: #4d5f3f;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.previewButton,
+.editButton,
+.deleteButton {
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewButton {
+  background: #eaf3e2;
+  color: #254117;
+}
+
+.editButton {
+  background: #638f38;
+  color: #fff;
+}
+
+.deleteButton {
+  background: #fce8e8;
+  color: #9f1f1f;
+}
+
+.deleteButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.previewWrap {
+  margin-top: 14px;
+  border: 1px solid #c9d7bc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.previewHeader {
+  background: #638f38;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+
+.previewGridHeader,
+.previewRow {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 74px 74px 74px 74px;
+}
+
+.previewGridHeader {
+  background: #f5f9f1;
+  border-top: 1px solid #d8e4cf;
+}
+
+.previewPrompt {
+  padding: 10px 12px;
+  font-weight: 700;
+  color: #26381a;
+  font-size: 0.9rem;
+}
+
+.previewColHeader {
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2d4020;
+}
+
+.previewRow {
+  border-top: 1px solid #d8e4cf;
+}
+
+.previewQuestion {
+  padding: 12px;
+  color: #1d3011;
+  font-size: 0.93rem;
+}
+
+.previewNumber {
+  font-weight: 800;
+}
+
+.previewScore {
+  padding: 12px 6px;
+  text-align: center;
+  color: #2e4121;
+}
+
+@media (max-width: 900px) {
+  .previewGridHeader,
+  .previewRow {
+    grid-template-columns: minmax(220px, 1fr) 56px 56px 56px 56px;
+  }
+
+  .previewColHeader {
+    font-size: 0.72rem;
+  }
+}

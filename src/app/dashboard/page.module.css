@@ -1,0 +1,38 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f5f8f2;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border: 1px solid #d8e4cf;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.title {
+  font-size: 1.7rem;
+  color: #203213;
+  margin-bottom: 10px;
+}
+
+.text {
+  color: #3f5131;
+  margin-bottom: 16px;
+}
+
+.button {
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: #638f38;
+  color: #fff;
+  padding: 0 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
