@@ -1,0 +1,178 @@
+.title {
+  font-size: 1.8rem;
+  color: #203213;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #4d5f3f;
+  margin-bottom: 14px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 180px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.input,
+.select {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #c4d6b6;
+  padding: 0 10px;
+  background: #fff;
+}
+
+.summaryRow {
+  display: flex;
+  gap: 16px;
+  color: #324e24;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.state {
+  color: #506344;
+}
+
+.locationList {
+  display: grid;
+  gap: 12px;
+}
+
+.locationCard {
+  border: 1px solid #cddfc0;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.locationHeader,
+.groupHeader {
+  width: 100%;
+  border: 0;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.locationHeader {
+  background: #eaf3e2;
+  grid-template-columns: auto 1fr auto;
+  justify-content: start;
+}
+
+.groupHeader {
+  background: #f4faef;
+}
+
+.locationName {
+  color: #203213;
+  font-weight: 800;
+  text-align: left;
+}
+
+.groupName {
+  color: #284719;
+  font-weight: 700;
+  text-align: left;
+}
+
+.meta {
+  color: #4f6242;
+  font-size: 0.84rem;
+}
+
+.locationHeader .meta {
+  justify-self: start;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+  color: #2b421b;
+}
+
+.locationBody {
+  border-top: 1px solid #d8e4cf;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.groupCard {
+  border: 1px solid #d8e4cf;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.logList {
+  border-top: 1px solid #e5eedc;
+}
+
+.logRow {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr) auto;
+  gap: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid #edf3e8;
+}
+
+.logRow:first-child {
+  border-top: 0;
+}
+
+.left,
+.center {
+  display: grid;
+  gap: 3px;
+}
+
+.left span,
+.center span {
+  font-size: 0.82rem;
+  color: #4f6242;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.badgeFinished {
+  background: #e6f4ea;
+  color: #24693b;
+}
+
+.badgeUnfinished {
+  background: #fff4db;
+  color: #8a5a00;
+}
+
+@media (max-width: 980px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryRow {
+    flex-wrap: wrap;
+  }
+
+  .logRow {
+    grid-template-columns: 1fr;
+  }
+}

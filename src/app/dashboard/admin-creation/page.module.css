@@ -1,0 +1,91 @@
+.title {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1d3d14;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  color: #47653d;
+}
+
+.form {
+  max-width: 680px;
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid #d7e5cb;
+  border-radius: 14px;
+  background: #f8fcf4;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2a4a20;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #b8cfaa;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6f9e4e;
+  box-shadow: 0 0 0 2px rgba(111, 158, 78, 0.16);
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #b8cfaa;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #6f9e4e;
+  box-shadow: 0 0 0 2px rgba(111, 158, 78, 0.16);
+}
+
+.button {
+  margin-top: 6px;
+  width: fit-content;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #638f38;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:disabled {
+  background: #afc4a0;
+  cursor: not-allowed;
+}
+
+.state {
+  margin: 0;
+  color: #4b5f3f;
+}
+
+.success {
+  margin: 0;
+  color: #226a2a;
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  color: #a13030;
+  font-weight: 600;
+}

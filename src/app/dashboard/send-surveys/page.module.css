@@ -1,0 +1,74 @@
+.title {
+  font-size: 1.8rem;
+  color: #203213;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #4d5f3f;
+  margin-bottom: 14px;
+}
+
+.state {
+  color: #506344;
+}
+
+.success {
+  color: #1d6a2f;
+  margin-bottom: 10px;
+}
+
+.error {
+  color: #b42318;
+  margin-bottom: 10px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid #d8e4cf;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.cardTitle {
+  margin: 0 0 6px;
+  color: #203213;
+  font-size: 1.05rem;
+}
+
+.cardMeta {
+  margin: 0;
+  color: #4d5f3f;
+  font-size: 0.9rem;
+}
+
+.sendButton {
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #638f38;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sendButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 680px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+}

@@ -12,6 +12,8 @@ import {
 } from "firebase/firestore";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { db } from "@/lib/firebase-client";
+import { useDashboardAccess } from "@/lib/dashboard-access-context";
+import { matchesScopedLocation, profileLocation } from "@/lib/location-scope";
 import styles from "./page.module.css";
 
 const ADMIN_DOMAINS = ["aspirecounselingservice.com", "aspirecounselingservices.com"];
@@ -50,12 +52,6 @@ function groupType(profile) {
   return calendar || programName || type || "Unassigned";
 }
 
-function locationLabel(profile) {
-  const location = (profile.location || "").toString().trim();
-  const programLocation = (profile.programLocation || "").toString().trim();
-  return location || programLocation || "Unassigned Location";
-}
-
 function normalizeAssignedSurveyIds(profile) {
   const raw = profile?.assignedSurveyIds;
   if (!Array.isArray(raw)) return [];
@@ -63,6 +59,7 @@ function normalizeAssignedSurveyIds(profile) {
 }
 
 export default function PatientsPage() {
+  const { isLocationAdmin, location: scopedLocation } = useDashboardAccess();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState([]);
   const [surveys, setSurveys] = useState([]);
@@ -98,7 +95,7 @@ export default function PatientsPage() {
               email: (data.email || docSnap.id || "").toString().toLowerCase(),
               name: patientName(data),
               mrn: (data.MRN || "").toString().trim(),
-              location: locationLabel(data),
+              location: profileLocation(data),
               groupType: groupType(data),
               assignedSurveyIds: normalizeAssignedSurveyIds(data),
               active: data.active !== false,
@@ -107,6 +104,7 @@ export default function PatientsPage() {
           })
           .filter((p) => p.active)
           .filter((p) => !isAdminProfile(p.raw))
+          .filter((p) => !isLocationAdmin || matchesScopedLocation(p.location, scopedLocation))
           .sort((a, b) => a.name.localeCompare(b.name));
 
         setSurveys(surveyRows);
@@ -120,7 +118,7 @@ export default function PatientsPage() {
     }
 
     loadPageData();
-  }, []);
+  }, [isLocationAdmin, scopedLocation]);
 
   const surveysById = useMemo(() => {
     const map = new Map();
