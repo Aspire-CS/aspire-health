@@ -21,3 +21,23 @@ export function canonicalCity(value) {
   return raw.replace(/,\s*california$/i, "").trim();
 }
 
+export function locationVariants(value) {
+  const city = canonicalCity(value);
+  if (!city) return [];
+
+  const map = {
+    bakersfield: [
+      "Bakersfield, California",
+      "Bakersfield",
+      "Bakersfield SUD",
+      "Bakersfield ABH",
+    ],
+    fresno: ["Fresno, California", "Fresno"],
+    "san luis obispo": ["San Luis Obispo, California", "San Luis Obispo"],
+    "santa clarita": ["Santa Clarita, California", "Santa Clarita"],
+    "simi valley": ["Simi Valley, California", "Simi Valley"],
+    victorville: ["Victorville, California", "Victorville"],
+  };
+
+  return map[city] || [];
+}

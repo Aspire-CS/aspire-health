@@ -7,13 +7,16 @@ import {
   collection,
   doc,
   getDocs,
+  query,
   serverTimestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { db } from "@/lib/firebase-client";
 import { useDashboardAccess } from "@/lib/dashboard-access-context";
 import { matchesScopedLocation, profileLocation } from "@/lib/location-scope";
+import { locationVariants } from "@/lib/locations";
 import styles from "./page.module.css";
 
 const ADMIN_DOMAINS = ["aspirecounselingservice.com", "aspirecounselingservices.com"];
@@ -24,8 +27,18 @@ function getDomain(email) {
 }
 
 function isAdminProfile(profile) {
-  const typeLower = (profile.typeLower || "").toString().toLowerCase();
-  if (typeLower === "admin") return true;
+  const typeLower = (profile.typeLower || profile.type || profile.role || "")
+    .toString()
+    .toLowerCase()
+    .trim();
+  if (
+    typeLower === "admin" ||
+    typeLower === "location-admin" ||
+    typeLower === "location_admin" ||
+    typeLower.includes("admin")
+  ) {
+    return true;
+  }
 
   const email = (profile.email || "").toString().toLowerCase();
   return ADMIN_DOMAINS.includes(getDomain(email));
@@ -76,10 +89,39 @@ export default function PatientsPage() {
     async function loadPageData() {
       setLoading(true);
       try {
-        const [profilesSnap, surveysSnap] = await Promise.all([
-          getDocs(collection(db, "user_profile")),
-          getDocs(collection(db, "surveys")),
-        ]);
+        const surveysSnap = await getDocs(collection(db, "surveys"));
+        let profileDocs = [];
+
+        if (!isLocationAdmin) {
+          const profilesSnap = await getDocs(collection(db, "user_profile"));
+          profileDocs = profilesSnap.docs;
+        } else {
+          const variants = locationVariants(scopedLocation);
+          const merged = new Map();
+
+          if (variants.length > 0) {
+            const scopedQueries = [
+              query(collection(db, "user_profile"), where("location", "in", variants)),
+              query(collection(db, "user_profile"), where("programLocation", "in", variants)),
+            ];
+
+            for (const scopedQuery of scopedQueries) {
+              try {
+                const snap = await getDocs(scopedQuery);
+                for (const docSnap of snap.docs) {
+                  merged.set(docSnap.id, docSnap);
+                }
+              } catch (err) {
+                const code = (err?.code || "").toString();
+                if (code !== "permission-denied" && code !== "firestore/permission-denied") {
+                  throw err;
+                }
+              }
+            }
+          }
+
+          profileDocs = Array.from(merged.values());
+        }
 
         const surveyRows = surveysSnap.docs.map((surveyDoc) => ({
           id: surveyDoc.id,
@@ -87,7 +129,7 @@ export default function PatientsPage() {
         }));
         surveyRows.sort((a, b) => a.title.localeCompare(b.title));
 
-        const patients = profilesSnap.docs
+        const patients = profileDocs
           .map((docSnap) => {
             const data = docSnap.data() || {};
             return {

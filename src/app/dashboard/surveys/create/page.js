@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase-client";
+import { useDashboardAccess } from "@/lib/dashboard-access-context";
 import styles from "./page.module.css";
 
 const MIN_QUESTIONS = 1;
 
 export default function CreateSurveyPage() {
+  const { isFullAdmin } = useDashboardAccess();
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState([""]);
   const [saving, setSaving] = useState(false);
@@ -34,7 +36,7 @@ export default function CreateSurveyPage() {
 
   async function handleSave(event) {
     event.preventDefault();
-    if (!canSave) return;
+    if (!isFullAdmin || !canSave) return;
 
     setSaving(true);
     setError("");
@@ -69,6 +71,10 @@ export default function CreateSurveyPage() {
       <h1 className={styles.title}>Create Survey</h1>
       <p className={styles.subtitle}>Add a title and as many questions as needed. All answers use 0-3 scale.</p>
 
+      {!isFullAdmin ? (
+        <p className={styles.error}>Only higher-up admins can create surveys.</p>
+      ) : null}
+
       <form className={styles.form} onSubmit={handleSave}>
         <label className={styles.label} htmlFor="survey-title">
           Survey Title
@@ -80,11 +86,17 @@ export default function CreateSurveyPage() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Example: Weekly Recovery Check-In"
           required
+          disabled={!isFullAdmin}
         />
 
         <div className={styles.questionsHeader}>
           <h2>Questions</h2>
-          <button className={styles.secondaryButton} type="button" onClick={addQuestion}>
+          <button
+            className={styles.secondaryButton}
+            type="button"
+            onClick={addQuestion}
+            disabled={!isFullAdmin}
+          >
             Add Question
           </button>
         </div>
@@ -99,6 +111,7 @@ export default function CreateSurveyPage() {
                 onChange={(e) => updateQuestion(index, e.target.value)}
                 placeholder="Enter question"
                 required
+                disabled={!isFullAdmin}
               />
               <p className={styles.scaleHint}>Answers: 0, 1, 2, 3</p>
               {questions.length > 1 ? (
@@ -106,6 +119,7 @@ export default function CreateSurveyPage() {
                   className={styles.removeButton}
                   type="button"
                   onClick={() => removeQuestion(index)}
+                  disabled={!isFullAdmin}
                 >
                   Remove
                 </button>
@@ -117,7 +131,7 @@ export default function CreateSurveyPage() {
         {message ? <p className={styles.success}>{message}</p> : null}
         {error ? <p className={styles.error}>{error}</p> : null}
 
-        <button className={styles.primaryButton} type="submit" disabled={!canSave}>
+        <button className={styles.primaryButton} type="submit" disabled={!isFullAdmin || !canSave}>
           {saving ? "Saving..." : "Create Survey"}
         </button>
       </form>

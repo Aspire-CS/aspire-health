@@ -11,6 +11,7 @@ import {
   query,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
+import { useDashboardAccess } from "@/lib/dashboard-access-context";
 import styles from "./page.module.css";
 
 const ANSWER_HEADERS = [
@@ -29,6 +30,7 @@ function normalizeQuestionText(item) {
 }
 
 export default function SurveysPage() {
+  const { isFullAdmin } = useDashboardAccess();
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openPreviewId, setOpenPreviewId] = useState("");
@@ -122,18 +124,22 @@ export default function SurveysPage() {
                       {isOpen ? "Hide Preview" : "Dropdown Preview"}
                     </button>
 
-                    <Link href={`/dashboard/surveys/${survey.id}/edit`} className={styles.editButton}>
-                      Edit
-                    </Link>
+                    {isFullAdmin ? (
+                      <Link href={`/dashboard/surveys/${survey.id}/edit`} className={styles.editButton}>
+                        Edit
+                      </Link>
+                    ) : null}
 
-                    <button
-                      className={styles.deleteButton}
-                      type="button"
-                      onClick={() => handleDelete(survey.id, survey.title)}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? "Deleting..." : "Delete"}
-                    </button>
+                    {isFullAdmin ? (
+                      <button
+                        className={styles.deleteButton}
+                        type="button"
+                        onClick={() => handleDelete(survey.id, survey.title)}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
 

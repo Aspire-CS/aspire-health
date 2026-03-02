@@ -11,10 +11,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
 import { useDashboardAccess } from "@/lib/dashboard-access-context";
 import { matchesScopedLocation, profileLocation } from "@/lib/location-scope";
+import { canonicalCity, locationVariants } from "@/lib/locations";
 import styles from "./page.module.css";
 
 function groupLabel(profile) {
@@ -93,15 +94,59 @@ export default function SurveyDataPage() {
     async function loadData() {
       setLoading(true);
       try {
-        const [instancesSnap, profilesSnap] = await Promise.all([
-          getDocs(collection(db, "survey_instances")),
-          getDocs(collection(db, "user_profile")),
-        ]);
+        const variants = locationVariants(scopedLocation);
+        const city = canonicalCity(scopedLocation);
+        let instanceDocs = [];
+        let profileDocs = [];
+
+        if (!isLocationAdmin) {
+          const [instancesSnap, profilesSnap] = await Promise.all([
+            getDocs(collection(db, "survey_instances")),
+            getDocs(collection(db, "user_profile")),
+          ]);
+          instanceDocs = instancesSnap.docs;
+          profileDocs = profilesSnap.docs;
+        } else if (variants.length > 0) {
+          const instanceMap = new Map();
+          const profileMap = new Map();
+
+          const instanceQueries = [
+            query(collection(db, "survey_instances"), where("patientLocation", "in", variants)),
+            query(collection(db, "survey_instances"), where("patientLocationCity", "==", city)),
+          ];
+          const profileQueries = [
+            query(collection(db, "user_profile"), where("location", "in", variants)),
+            query(collection(db, "user_profile"), where("programLocation", "in", variants)),
+          ];
+
+          for (const scopedQuery of instanceQueries) {
+            try {
+              const snap = await getDocs(scopedQuery);
+              for (const docSnap of snap.docs) instanceMap.set(docSnap.id, docSnap);
+            } catch (err) {
+              const code = (err?.code || "").toString();
+              if (code !== "permission-denied" && code !== "firestore/permission-denied") throw err;
+            }
+          }
+
+          for (const scopedQuery of profileQueries) {
+            try {
+              const snap = await getDocs(scopedQuery);
+              for (const docSnap of snap.docs) profileMap.set(docSnap.id, docSnap);
+            } catch (err) {
+              const code = (err?.code || "").toString();
+              if (code !== "permission-denied" && code !== "firestore/permission-denied") throw err;
+            }
+          }
+
+          instanceDocs = Array.from(instanceMap.values());
+          profileDocs = Array.from(profileMap.values());
+        }
 
         const profileByDocId = new Map();
         const profileByEmail = new Map();
 
-        for (const profileDoc of profilesSnap.docs) {
+        for (const profileDoc of profileDocs) {
           const data = profileDoc.data() || {};
           profileByDocId.set(profileDoc.id, data);
 
@@ -111,7 +156,7 @@ export default function SurveyDataPage() {
 
         const patientMap = new Map();
 
-        for (const instanceDoc of instancesSnap.docs) {
+        for (const instanceDoc of instanceDocs) {
           const data = instanceDoc.data() || {};
           const status = normalizeStatus(data.status);
 

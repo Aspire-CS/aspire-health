@@ -6,13 +6,16 @@ import {
   collection,
   doc,
   getDocs,
+  query,
   serverTimestamp,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase-client";
 import { useDashboardAccess } from "@/lib/dashboard-access-context";
 import { matchesScopedLocation, profileLocation } from "@/lib/location-scope";
+import { canonicalCity, locationVariants } from "@/lib/locations";
 import styles from "./page.module.css";
 
 const ADMIN_DOMAINS = ["aspirecounselingservice.com", "aspirecounselingservices.com"];
@@ -23,8 +26,18 @@ function getDomain(email) {
 }
 
 function isAdminProfile(profile) {
-  const typeLower = (profile.typeLower || "").toString().toLowerCase();
-  if (typeLower === "admin") return true;
+  const typeLower = (profile.typeLower || profile.type || profile.role || "")
+    .toString()
+    .toLowerCase()
+    .trim();
+  if (
+    typeLower === "admin" ||
+    typeLower === "location-admin" ||
+    typeLower === "location_admin" ||
+    typeLower.includes("admin")
+  ) {
+    return true;
+  }
 
   const email = (profile.email || "").toString().toLowerCase();
   return ADMIN_DOMAINS.includes(getDomain(email));
@@ -76,10 +89,39 @@ export default function SendSurveysPage() {
       setError("");
 
       try {
-        const [surveysSnap, profilesSnap] = await Promise.all([
-          getDocs(collection(db, "surveys")),
-          getDocs(collection(db, "user_profile")),
-        ]);
+        const surveysSnap = await getDocs(collection(db, "surveys"));
+        let profileDocs = [];
+
+        if (!isLocationAdmin) {
+          const profilesSnap = await getDocs(collection(db, "user_profile"));
+          profileDocs = profilesSnap.docs;
+        } else {
+          const variants = locationVariants(scopedLocation);
+          const merged = new Map();
+
+          if (variants.length > 0) {
+            const scopedQueries = [
+              query(collection(db, "user_profile"), where("location", "in", variants)),
+              query(collection(db, "user_profile"), where("programLocation", "in", variants)),
+            ];
+
+            for (const scopedQuery of scopedQueries) {
+              try {
+                const snap = await getDocs(scopedQuery);
+                for (const docSnap of snap.docs) {
+                  merged.set(docSnap.id, docSnap);
+                }
+              } catch (err) {
+                const code = (err?.code || "").toString();
+                if (code !== "permission-denied" && code !== "firestore/permission-denied") {
+                  throw err;
+                }
+              }
+            }
+          }
+
+          profileDocs = Array.from(merged.values());
+        }
 
         const surveyRows = surveysSnap.docs
           .map((surveyDoc) => {
@@ -93,7 +135,7 @@ export default function SendSurveysPage() {
           })
           .sort((a, b) => a.title.localeCompare(b.title));
 
-        const patientRows = profilesSnap.docs
+        const patientRows = profileDocs
           .map((docSnap) => {
             const data = docSnap.data() || {};
             const assignedSurveyIds = Array.isArray(data.assignedSurveyIds)
@@ -158,6 +200,8 @@ export default function SendSurveysPage() {
       const dispatchRef = await addDoc(collection(db, "survey_dispatches"), {
         surveyId: survey.id,
         surveyTitle: survey.title,
+        location: scopedLocation || "",
+        locationCity: canonicalCity(scopedLocation),
         recipientCount: recipients.length,
         sentByUid: auth.currentUser?.uid || "",
         sentByEmail: auth.currentUser?.email || "",
@@ -179,6 +223,7 @@ export default function SendSurveysPage() {
           patientName: recipient.name,
           patientMrn: recipient.mrn,
           patientLocation: recipient.location,
+          patientLocationCity: canonicalCity(recipient.location),
           status: "unfinished",
           score: null,
           answers: [],

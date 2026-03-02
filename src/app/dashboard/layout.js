@@ -11,7 +11,7 @@ import styles from "./dashboard.module.css";
 
 const navItems = [
   { href: "/dashboard/surveys", label: "Surveys" },
-  { href: "/dashboard/surveys/create", label: "Create Survey" },
+  { href: "/dashboard/surveys/create", label: "Create Survey", fullAdminOnly: true },
   { href: "/dashboard/send-surveys", label: "Send Surveys" },
   { href: "/dashboard/survey-results", label: "Survey Results" },
   { href: "/dashboard/survey-data", label: "Survey Data" },
