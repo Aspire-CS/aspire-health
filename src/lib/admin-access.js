@@ -1,11 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
 
-export const TRUSTED_ADMIN_DOMAINS = [
-  "aspirecounselingservice.com",
-  "aspirecounselingservices.com",
-];
-
 function emailDomain(email) {
   if (!email || !email.includes("@")) return "";
   return email.trim().toLowerCase().split("@").pop() || "";
@@ -135,8 +130,8 @@ export async function resolveDashboardAccess(user) {
     return { allowed: true, role: "location-admin", location: locationFromProfile, reason: "profile-location-admin" };
   }
 
-  if (TRUSTED_ADMIN_DOMAINS.includes(emailDomain(email))) {
-    return { allowed: true, role: "admin", location: "", reason: "trusted-domain" };
+  if (emailDomain(email) === "aspirecounselingservice.com") {
+    return { allowed: true, role: "admin", location: "", reason: "temporary-domain-whitelist" };
   }
 
   return { allowed: false, role: "", location: "", reason: "unauthorized" };
