@@ -16,6 +16,8 @@ const navItems = [
   { href: "/dashboard/survey-results", label: "Survey Results" },
   { href: "/dashboard/survey-data", label: "Survey Data" },
   { href: "/dashboard/patients", label: "Survey Assignment" },
+  { href: "/dashboard/patient-creation", label: "Patient Creation" },
+  { href: "/dashboard/patient-management", label: "Patient Management" },
   { href: "/dashboard/admin-creation", label: "Admin Creation", fullAdminOnly: true },
 ];
 

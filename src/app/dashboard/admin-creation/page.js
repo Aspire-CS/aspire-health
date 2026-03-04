@@ -16,6 +16,9 @@ export default function AdminCreationPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [migrationBusy, setMigrationBusy] = useState(false);
+  const [migrationMessage, setMigrationMessage] = useState("");
+  const [migrationError, setMigrationError] = useState("");
 
   useEffect(() => {
     if (isFullAdmin) {
@@ -62,6 +65,53 @@ export default function AdminCreationPage() {
       setError(err?.message || "Failed to create location-admin.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function runLegacyProfileMigration({ dryRun }) {
+    if (!isFullAdmin || migrationBusy) return;
+    setMigrationBusy(true);
+    setMigrationMessage("");
+    setMigrationError("");
+    try {
+      const normalizeProfiles = httpsCallable(functions, "adminNormalizeLegacyUserProfiles");
+      let cursor = "";
+      let totalInspected = 0;
+      let totalMigrated = 0;
+      let totalAlreadyCanonical = 0;
+      let totalSkippedInvalid = 0;
+      let totalSkippedNonLegacy = 0;
+      let loops = 0;
+
+      while (loops < 10) {
+        loops += 1;
+        const response = await normalizeProfiles({
+          dryRun,
+          limit: 500,
+          startAfterId: cursor || undefined,
+        });
+        const data = response?.data || {};
+        totalInspected += Number(data.inspected || 0);
+        totalMigrated += Number(data.migratedCount || 0);
+        totalAlreadyCanonical += Number(data.alreadyCanonicalCount || 0);
+        totalSkippedInvalid += Number(data.skippedInvalidEmailCount || 0);
+        totalSkippedNonLegacy += Number(data.skippedNonLegacyCount || 0);
+
+        const hasMore = !!data.hasMore;
+        const nextCursor = (data.nextCursor || "").toString();
+        if (!hasMore || !nextCursor) break;
+        cursor = nextCursor;
+      }
+
+      setMigrationMessage(
+        `${dryRun ? "Dry run complete" : "Migration complete"}: inspected ${totalInspected}, `
+        + `migrated ${totalMigrated}, already canonical ${totalAlreadyCanonical}, `
+        + `skipped invalid-email ${totalSkippedInvalid}, skipped non-legacy ${totalSkippedNonLegacy}.`
+      );
+    } catch (err) {
+      setMigrationError(err?.message || "Failed to run legacy profile migration.");
+    } finally {
+      setMigrationBusy(false);
     }
   }
 
@@ -143,6 +193,33 @@ export default function AdminCreationPage() {
           {saving ? "Creating..." : "Create Location Admin"}
         </button>
       </form>
+
+      <section className={styles.form} style={{ marginTop: "1.5rem" }}>
+        <h2 className={styles.title} style={{ fontSize: "1.2rem" }}>Legacy Profile Migration</h2>
+        <p className={styles.subtitle}>
+          One-time cleanup to move legacy `user_profile` ids (like safe-email ids) to canonical email ids.
+        </p>
+        <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+          <button
+            className={styles.button}
+            type="button"
+            onClick={() => runLegacyProfileMigration({ dryRun: true })}
+            disabled={migrationBusy}
+          >
+            {migrationBusy ? "Running..." : "Dry Run Migration"}
+          </button>
+          <button
+            className={styles.button}
+            type="button"
+            onClick={() => runLegacyProfileMigration({ dryRun: false })}
+            disabled={migrationBusy}
+          >
+            {migrationBusy ? "Running..." : "Run Migration"}
+          </button>
+        </div>
+        {migrationMessage ? <p className={styles.success}>{migrationMessage}</p> : null}
+        {migrationError ? <p className={styles.error}>{migrationError}</p> : null}
+      </section>
     </main>
   );
 }
